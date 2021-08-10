@@ -29,6 +29,8 @@ from environment.minigrid import *
 from gym_minigrid.wrappers import FullyObsWrapper, ReseedWrapper
 from typing import List
 
+from environment.MiniHack.minihack.envs import *
+
 
 # yapf: disable
 parser = argparse.ArgumentParser(description="PyTorch Scalable Agent")
@@ -40,7 +42,7 @@ parser.add_argument("--env", type=str, help="Gym environment.", choices=["breako
                                                                          "MiniGrid-LavaCrossingS9N2-v0",
                                                                          "MiniGrid-LavaCrossingS9N3-v0",
                                                                          "MiniGrid-LavaCrossingClosed-v0",
-                                                                         "blockworld"
+                                                                         "blockworld", 
                                                                          ])
 parser.add_argument("--agent", type=str, default="CNN",
                     choices=["CNN", "NLM", "KBMLP", "GCN"],
