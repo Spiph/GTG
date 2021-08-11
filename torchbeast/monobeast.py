@@ -29,8 +29,6 @@ from environment.minigrid import *
 from gym_minigrid.wrappers import FullyObsWrapper, ReseedWrapper
 from typing import List
 
-from environment.MiniHack.minihack.envs import *
-
 
 # yapf: disable
 parser = argparse.ArgumentParser(description="PyTorch Scalable Agent")
@@ -42,7 +40,7 @@ parser.add_argument("--env", type=str, help="Gym environment.", choices=["breako
                                                                          "MiniGrid-LavaCrossingS9N2-v0",
                                                                          "MiniGrid-LavaCrossingS9N3-v0",
                                                                          "MiniGrid-LavaCrossingClosed-v0",
-                                                                         "blockworld", 
+                                                                         "blockworld", "MiniHack-Corridor-R2-v0"
                                                                          ])
 parser.add_argument("--agent", type=str, default="CNN",
                     choices=["CNN", "NLM", "KBMLP", "GCN"],
@@ -754,6 +752,8 @@ def create_gymenv(flags):
         env_type = "rtfm"
     elif flags.env == "boxworld":
         env_type = "boxworld"
+    elif flags.env in ["MiniHack-Corridor-R2-v0"]:
+        env_type = "minihack"
     else:
         env_type = "minigrid"
 
@@ -796,6 +796,8 @@ def create_gymenv(flags):
                 raise ValueError()
         else:
             env = RTFMEnv()
+    elif env_type in ["minihack"]:
+        from environment.minihack.minihack.envs import *
 
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
