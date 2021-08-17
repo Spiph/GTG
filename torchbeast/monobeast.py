@@ -797,7 +797,8 @@ def create_gymenv(flags):
         else:
             env = RTFMEnv()
     elif env_type in ["minihack"]:
-        from environment.minihack.minihack.envs import *
+        import minihack
+        env = gym.make("MiniHack-Corridor-R2-v0")
 
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
