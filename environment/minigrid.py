@@ -188,6 +188,10 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
             self.attributes = [str(i) for i in range(len(all_colors))]
             self.env_type = "boxworld"
             self.nullary_predicates = []
+        elif "MiniHack" in env.unwrapped.spec.id:
+            self.attributes = env.env._obs  # TODO this may not be right
+            self.env_type = "minihack"
+            self.nullary_predicates = []
         else:
             raise ValueError()
         self.unary_predicates = self.attributes
