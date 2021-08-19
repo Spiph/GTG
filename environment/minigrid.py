@@ -230,7 +230,10 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
                                    is_left, is_right, is_front, is_back, top_right, top_left,
                                    down_left, down_right]
 
-        self.obj_n = np.prod(env.observation_space["image"].shape[:-1]) #physical eneities
+        if self.env_type == "minihack":
+            self.obj_n = np.prod(env.observation_space["image"].shape)
+        else:
+            self.obj_n = np.prod(env.observation_space["image"].shape[:-1])  # physical eneities
         self.nb_all_entities = self.obj_n
         if self.env_type == "rtfm":
             nb_unary = self.env.nb_unary if self.env.with_vkb else 0

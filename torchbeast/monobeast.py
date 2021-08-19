@@ -7,6 +7,7 @@ import time
 import timeit
 import traceback
 import typing
+import wandb
 
 os.environ["OMP_NUM_THREADS"] = "1"  # Necessary for multithreading.
 
@@ -53,6 +54,7 @@ parser.add_argument("--mode", default="train",
 parser.add_argument("--xpid", default=None,
                     help="Experiment id (default: None).")
 parser.add_argument("--actor_id", default=None)
+parser.add_argument("--wandb", action="store_true",help="Log to wandb.")
 
 # Training settings.
 parser.add_argument("--disable_checkpoint", action="store_true",
@@ -799,7 +801,7 @@ def create_gymenv(flags):
     elif env_type in ["minihack"]:
         import minihack
         env = gym.make("MiniHack-Corridor-R2-v0")
-
+        env.observation_space.spaces["image"] = env.observation_space["chars_crop"]
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
             env = DirectionWrapper(env)
@@ -819,6 +821,13 @@ def create_gymenv(flags):
 
 
 def main(flags):
+    if flags.wandb:
+        wandb.init(
+            project=flags.project,
+            config=vars(flags),
+            group=flags.group,
+            entity=flags.entity,
+        )
     if flags.mode == "train":
         train(flags)
     else:
