@@ -6,3 +6,6 @@ matplotlib
 torch-geometric>=1.6.1
 torch>=1.4.0
 pandas==0.25.1
+revtok>=0.0.3
+getch>=1.0
+vocab>=0.0.5
