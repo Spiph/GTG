@@ -801,7 +801,7 @@ def create_gymenv(flags):
     elif env_type in ["minihack"]:
         import minihack
         env = gym.make("MiniHack-Corridor-R2-v0")
-        env.observation_space.spaces["image"] = env.observation_space["chars_crop"]
+        env.observation_space.spaces["image"] = env.observation_space["chars_crop"]  # TODO is this right?
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
             env = DirectionWrapper(env)
