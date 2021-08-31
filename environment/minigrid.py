@@ -128,6 +128,9 @@ def parse_object(x:int, y:int, feature, type="minigrid")->GridObject:
     elif type == "boxworld":
         obj_type = [str(color2index[tuple(feature)])]
         obj = GridObject(x, y, object_type=obj_type)
+    elif type == "minihack":
+        # TODO [ic] implement obj and obj_type for minihack
+        raise NotImplementedError()
     else:
         raise ValueError()
     return obj
@@ -155,6 +158,22 @@ class DirectionWrapper(gym.core.ObservationWrapper):
             raise ValueError(f"type cannot be {self.type}")
         return {"image":image, "mission":obs["mission"],
                 "direction":dir}
+
+
+# TODO [ic] implement multidirectionwrapper, may not be needed right away
+class MultiDirectionWrapper(gym.core.ObservationWrapper):
+    """
+    Add a (agent) direction string for each observation
+    """
+    def __init__(self, env, type="index"):
+        super().__init__(env)
+        self.observation_space.spaces["direction"] = spaces.Discrete(4)
+        # TODO [ic] add Discrete(8) for minihack
+        self.type = type
+
+    def observation(self, obs):
+        raise NotImplementedError()
+
 
 def offset2idx_offset(x, y, width):
     return y*width+x
@@ -189,7 +208,8 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
             self.env_type = "boxworld"
             self.nullary_predicates = []
         elif "MiniHack" in env.unwrapped.spec.id:
-            self.attributes = env.env._obs  # TODO this may not be right
+
+            self.attributes = env.env._obs  # TODO [ic] this should be env objects, not observations
             self.env_type = "minihack"
             self.nullary_predicates = []
         else:
@@ -203,7 +223,7 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
         elif background_id in ["b2", "local"]:
             self.rel_deter_func = [is_top_adj, is_left_adj, is_top_right_adj, is_top_left_adj,
                                    is_down_adj, is_right_adj, is_down_left_adj, is_down_right_adj]
-        elif background_id in ["b3", "all"]:
+        elif background_id in ["b3", "all"]:  # [ic] this is the default from args
             self.rel_deter_func = [is_top_adj, is_left_adj, is_top_right_adj, is_top_left_adj,
                                    is_down_adj, is_right_adj, is_down_left_adj, is_down_right_adj,
                                    is_left, is_right, is_front, is_back, is_aligned, is_close]
@@ -230,7 +250,7 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
                                    is_left, is_right, is_front, is_back, top_right, top_left,
                                    down_left, down_right]
 
-        if self.env_type == "minihack":
+        if self.env_type == "minihack":  # TODO [ic] fix this by making self.obj_n take something other than an image
             self.obj_n = np.prod(env.observation_space["image"].shape)
         else:
             self.obj_n = np.prod(env.observation_space["image"].shape[:-1])  # physical eneities

@@ -805,6 +805,8 @@ def create_gymenv(flags):
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
             env = DirectionWrapper(env)
+        if env_type == "minihack":
+            env = MultiDirectionWrapper(env)  # TODO [ic] add multidirection wrapper for diagonals
         if flags.state == "absolute":
             env = AbsoluteVKBWrapper(env, flags.bg_code, portal_pairs)
         elif flags.state == "block":
