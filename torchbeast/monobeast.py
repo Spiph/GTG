@@ -630,7 +630,7 @@ def create_model(flags, env):
 
     if flags.agent == "CNN":
         model = CNNAgent(env.observation_space.spaces["image"].shape, env.action_space.n,
-                         flags.cnn_code, flags.use_lstm, embedding_size=flags.embedding_size)
+                         flags.cnn_code, use_lstm=False, embedding_size=flags.embedding_size)
     elif flags.agent == "NLM":
         obs_shape = env.observation_space.spaces["image"].shape
         action = flags.action
@@ -800,13 +800,11 @@ def create_gymenv(flags):
             env = RTFMEnv()
     elif env_type in ["minihack"]:
         import minihack
-        env = gym.make("MiniHack-Corridor-R2-v0")
-        env.observation_space.spaces["image"] = env.observation_space["chars_crop"]  # TODO is this right?
+        env = gym.make("MiniHack-Corridor-R2-v0", observation_keys=["glyphs_crop", "chars_crop", "colors_crop"])
+        env.observation_space.spaces["image"] = env.observation_space["glyphs_crop"]  # TODO is this right?
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
             env = DirectionWrapper(env)
-        if env_type == "minihack":
-            env = MultiDirectionWrapper(env)  # TODO [ic] add multidirection wrapper for diagonals
         if flags.state == "absolute":
             env = AbsoluteVKBWrapper(env, flags.bg_code, portal_pairs)
         elif flags.state == "block":

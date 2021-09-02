@@ -208,8 +208,8 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
             self.env_type = "boxworld"
             self.nullary_predicates = []
         elif "MiniHack" in env.unwrapped.spec.id:
-
-            self.attributes = env.env._obs  # TODO [ic] this should be env objects, not observations
+            objs = ["unseen", "empty", "wall", "floor", "goal", "corridor", "agent"]  # TODO get this from env
+            self.attributes = objs  # TODO [ic] this should be env objects, not observations
             self.env_type = "minihack"
             self.nullary_predicates = []
         else:
@@ -255,7 +255,7 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
         else:
             self.obj_n = np.prod(env.observation_space["image"].shape[:-1])  # physical eneities
         self.nb_all_entities = self.obj_n
-        if self.env_type == "rtfm":
+        if self.env_type == "rtfm":  # TODO [ic] why does RTFM need special treatment here?
             nb_unary = self.env.nb_unary if self.env.with_vkb else 0
             nb_binary = self.env.nb_binary if self.env.with_vkb else 0
             nb_entities = self.nb_entities if self.env.with_vkb else self.obj_n
@@ -322,6 +322,8 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
 
         if "direction" in obs:
             spatial_VKB = self.img2vkb(obs["image"], obs["direction"])
+        elif self.env_type == "minihack":
+            spatial_VKB = self.img2vkb(obs["glyphs_crop"])
         else:
             spatial_VKB = self.img2vkb(obs["image"])
 
