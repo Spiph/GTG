@@ -129,8 +129,10 @@ def parse_object(x:int, y:int, feature, type="minigrid")->GridObject:
         obj_type = [str(color2index[tuple(feature)])]
         obj = GridObject(x, y, object_type=obj_type)
     elif type == "minihack":
-        # TODO [ic] implement obj and obj_type for minihack
-        raise NotImplementedError()
+        # all_glyphs = get_object_list_from_glyphs(total_obs)
+        obj_type = feature
+        obj = GridObject(x, y, obj_type)
+
     else:
         raise ValueError()
     return obj
@@ -178,6 +180,26 @@ class MultiDirectionWrapper(gym.core.ObservationWrapper):
 def offset2idx_offset(x, y, width):
     return y*width+x
 
+def get_object_list_from_glyphs(full_glyph):
+    """Helper function to get a full list of all glyphs used in the environment
+    NOTE:
+    This only handles glyphs on the single level, not any new levels that may get generated
+    TODO make this the full glyph list possibly
+
+    Args:
+    [full_glyph]: numpy.ndarray of all glyphs on a level
+
+    Return:
+    a sorted list containing the indecies of all glyphs on the level
+
+    """
+    glyph_list = []
+    for i in full_glyph:
+        for j in i:
+            if j not in glyph_list:
+                glyph_list.append(j)
+    return sorted(glyph_list)
+
 
 from random import randint
 class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
@@ -208,7 +230,8 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
             self.env_type = "boxworld"
             self.nullary_predicates = []
         elif "MiniHack" in env.unwrapped.spec.id:
-            objs = ["unseen", "empty", "wall", "floor", "goal", "corridor", "agent"]  # TODO get this from env
+            this_env = env.reset()  # this may be overkill to get all the used glyphs by starting a new env
+            objs = get_object_list_from_glyphs(this_env["glyphs"])  # TODO see get_object_list_from_glyphs
             self.attributes = objs  # TODO [ic] this should be env objects, not observations
             self.env_type = "minihack"
             self.nullary_predicates = []
@@ -275,7 +298,7 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
         portals = []
         for y, row in enumerate(img):
             for x, pixel in enumerate(row):
-                obj = parse_object(x, y, pixel, self.env_type)
+                obj = parse_object(x, y, pixel, type=self.env_type)
                 objs.append(obj)
                 if self.with_portals and (x, y) in self.portal_pairs:
                     portals.append(obj)
@@ -288,9 +311,11 @@ class AbsoluteVKBWrapper(gym.core.ObservationWrapper):
 
         for obj_idx, obj in enumerate(objs):
             for p_idx, p in enumerate(self.attributes):
-                if p in obj.attributes:
+                if self.env_type == "minihack":  # TODO this may need to check that p is an attribute
                     unary_tensors[p_idx][obj_idx] = 1.0
-
+                elif p in obj.attributes:
+                    unary_tensors[p_idx][obj_idx] = 1.0
+        
         if not self.spatial_tensors:
             self.spatial_tensors = [np.zeros([len(objs), len(objs)]) for _ in range(len(self.rel_deter_func))]
             for obj_idx1, obj1 in enumerate(objs):

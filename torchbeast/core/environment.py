@@ -56,8 +56,10 @@ class Environment:
                 episode_step=self.episode_step,
                 last_action=initial_last_action,
             )
-
-        frame = _format_frame(obs["image"])
+        if self.gym_env.env_type == "minihack":  # TODO is dimensionality a problem here?
+            frame = _format_frame(obs["glyphs_crop"])
+        else:
+            frame = _format_frame(obs["image"])
         result["frame"] = frame
         if self.obs_type == "image":
             if "direction" in obs:
@@ -90,7 +92,10 @@ class Environment:
                 episode_step=episode_step,
                 last_action=action,
             )
-        frame = _format_frame(obs["image"])
+        if self.gym_env.env_type == "minihack":  # TODO is dimensionality a problem here?
+            frame = _format_frame(obs["glyphs_crop"])
+        else:
+            frame = _format_frame(obs["image"])
         result["frame"] = frame
         if self.obs_type == "image":
             if "direction" in obs:

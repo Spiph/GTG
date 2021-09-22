@@ -55,6 +55,9 @@ parser.add_argument("--xpid", default=None,
                     help="Experiment id (default: None).")
 parser.add_argument("--actor_id", default=None)
 parser.add_argument("--wandb", action="store_true",help="Log to wandb.")
+parser.add_argument("--project", type=str, default="NetHack")
+parser.add_argument("--group", type=str, default="default_group")
+parser.add_argument("--entity", type=str, default=None)
 
 # Training settings.
 parser.add_argument("--disable_checkpoint", action="store_true",
@@ -333,6 +336,7 @@ def learn(
         nn.utils.clip_grad_norm_(model.parameters(), flags.grad_norm_clipping)
         optimizer.step()
         scheduler.step()
+        wandb.log(stats)
         return stats
 
 
@@ -800,7 +804,7 @@ def create_gymenv(flags):
             env = RTFMEnv()
     elif env_type in ["minihack"]:
         import minihack
-        env = gym.make("MiniHack-Corridor-R2-v0", observation_keys=["glyphs_crop", "chars_crop", "colors_crop"])
+        env = gym.make("MiniHack-Corridor-R2-v0", observation_keys=["glyphs", "glyphs_crop", "screen_descriptions_crop", "chars_crop", "colors_crop", "screen_descriptions"])
         env.observation_space.spaces["image"] = env.observation_space["glyphs_crop"]  # TODO is this right?
     if flags.agent in ["NLM", "KBMLP", "GCN"]:
         if env_type == "minigrid":
