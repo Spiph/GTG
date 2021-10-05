@@ -128,7 +128,7 @@ parser.add_argument("--nb_distractor", default=1, type=int)
 parser.add_argument("--distractor_length", default=1, type=int)
 
 # CNN GCN Setting
-parser.add_argument("--cnn_code", type=str, default="2gm2f")
+parser.add_argument("--cnn_code", type=str, default="2g2f")
 parser.add_argument("--embedding_size", type=int, default=64)
 parser.add_argument("--mp_rounds", type=int, default=1)
 
